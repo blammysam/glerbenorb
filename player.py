@@ -14,7 +14,7 @@ class Player:
     def get_x(self):
         return self.x
     def set_x(self,x):
-        self.x = x
+        self.x = x 
     def get_y(self):
         return self.y
     def set_y(self,y):
@@ -30,16 +30,10 @@ class Player:
         x_direction = key_presses["right"]-key_presses["left"]
         y_direction = key_presses["down"]-key_presses["up"]
         
-        stop_position = CollisionManager.attempt_player_move((x_direction,y_direction),self,tile_map)
-        if(stop_position is None):
-                
-            self.x+=x_direction*self.walk_speed
-            if(x_direction == 0):
-                self.y+=y_direction*self.walk_speed
-        else:
-            self.set_x(stop_position[0])
-            self.set_y(stop_position[1])
-    
+        new_position = CollisionManager.attempt_player_move((x_direction,y_direction),self,tile_map)
+        self.set_x(new_position[0])
+        self.set_y(new_position[1])
+
 
 
 

@@ -7,76 +7,77 @@ class CollisionManager:
     def attempt_player_move(direction,player,tile_map):
         near_tiles = CollisionManager.get_near_tiles(tile_map,player)
         for tile in near_tiles:
-            #only check collision if tile is not traversable
-            if not tile.is_traversable:
-                
-                on_side_x,on_side_y = CollisionManager.calculate_on_sides(player,tile)
-                player_stop_position = CollisionManager.check_overlaps_for_player_stop_position(player,direction,on_side_x,on_side_y,tile)
-                if(player_stop_position is not None):
-                    return player_stop_position
-        return None
+
+            player_collided_position = CollisionManager.check_collision(player,direction,tile)
+            if(player_collided_position is not None):
+                return (player_collided_position[0],player_collided_position[1])
+        normal_move_position = (player.get_x()+ player.get_walk_speed()*direction[0],player.get_y()+player.get_walk_speed()*direction[1])
+        return normal_move_position
                
                 
 
     @staticmethod
-    def check_overlaps_for_player_stop_position(player,direction,on_side_x,on_side_y,tile):
-        new_player_x = player.get_x()
-        new_player_y = player.get_y()
+    def check_collision(player,direction,tile):
+        if tile.is_traversable is True:
+            return None
+        #get the player position
+        player_left = player.get_x()
+        player_top = player.get_y()
+        player_right = player_left + player.get_width()
+        player_bottom = player_top + player.get_height()
+
+        #get tile position
+        tile_left = tile.get_x()
+        tile_top = tile.get_y()
+        tile_middle_x = tile_left +0.5
+        tile_middle_y = tile_top +0.5
+        #----- actually the start of the next tile 
+        tile_right = tile_left+1
+        tile_bottom = tile_top+1
+
+        #player position if they were to move uninterrupted
+        next_player_x = player.get_x()+(player.get_walk_speed()*direction[0])
+        next_player_y = player.get_y()+(player.get_walk_speed()*direction[1])
+        
+        #to be returned for player use
+        after_collision_player_x = player_left
+        after_collision_player_y = player_top
         
         collided = False
-        
-        if(on_side_y == "overlap"):
-
-            if(on_side_x == "left" and direction[0] == 1):
-                #if player overlaps from the left (o -> |)
-                if(player.get_x()+player.get_width()+player.get_walk_speed()>=tile.get_x()):
-
-                    new_player_x = tile.get_x()-player.get_width()
-                    collided = True
-                #if player overlaps from the right (| <- o)
-            elif(on_side_x == "right" and direction[0] == -1):
-                if(player.get_x() - player.get_walk_speed() <= tile.get_x() + 1):
-                    new_player_x = tile.get_x()+1
-                    collided = True
-        #if overlapping on X axis, check either side on y axis
-        if(on_side_x == "overlap"):
-            if(on_side_y == "up" and direction[1] == 1):
-                #if player overlaps from the top
-                if(player.get_y()+player.get_height()+player.get_walk_speed()>=tile.get_y()):
-                    new_player_y = tile.get_y()-player.get_height()
-                    collided = True
-            elif(on_side_x == "down" and direction[1] == -1):
-                #if player overlaps from the bottom
-                if(player.get_y() - player.get_walk_speed() <= tile.get_y() + 1):
-                    new_player_y = tile.get_y()+1
-                    collided = True
-        if collided is True:
-            print("COLLIDED")
-            print(new_player_x,new_player_y)
-            return (new_player_x,new_player_y)
+        #if in the next frame the player would overlap the tile,
+        # then check which side of the center the original player position is
+        # then send the position next to the tile back to the player (return it)
+        if(CollisionManager.check_box_collision(next_player_x,player_top,player.get_width(),player.get_height(),tile.get_x(),tile.get_y(),1,1)):
+            collided = True
+            #player on left 
+            if(player_right < tile_middle_x): 
+                #move player to the left - 1
+                after_collision_player_x = tile_left-player.get_width()
+            #player on right
+            elif(player_left >= tile_middle_x):
+                after_collision_player_x = tile_right
+            
+        if(CollisionManager.check_box_collision(player_left,next_player_y,player.get_width(),player.get_height(),tile.get_x(),tile.get_y(),1,1)):
+            collided = True
+            #player on top
+            if(player_bottom < tile_middle_y):
+                after_collision_player_y = tile_top-player.get_height()
+            #player below
+            elif(player_top >= tile_middle_y):
+                after_collision_player_y = tile_bottom
+        if(collided):
+            print("colided")
+            return (after_collision_player_x,after_collision_player_y)
         else:
             return None
 
-                
+        
+
     @staticmethod
-    def calculate_on_sides(player,tile):
-        on_side_x = None
-        on_side_y = None
-        if(player.get_x() + player.get_width() < tile.get_x()):
-            on_side_x = "left"
-        elif(player.get_x() > tile.get_x()+1):
-            on_side_x = "right"
-        else:
-            on_side_x = "overlap"
-        if(player.get_y() + player.get_height() < tile.get_y()):
-            on_side_y = "up"
-        elif(player.get_y() > tile.get_y()+1):
-            on_side_y = "down"
-        else:
-            on_side_y = "overlap"
-        return on_side_x,on_side_y
-            
-                    
+    def check_box_collision(x1,y1,w1,h1,x2,y2,w2,h2):
+        if (x1+w1 > x2 and x1 < x2+w2 and y1 + h1 > y2 and y1 < y2 + h2):
+            return True
+        return False
     @staticmethod
     def get_near_tiles(tile_map, player):
         near_tiles = []
