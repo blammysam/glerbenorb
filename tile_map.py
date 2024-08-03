@@ -15,3 +15,4 @@ class TileMap:
                 new_tile = TileMap.character_tiles[character](j,i)
                 self.tiles.append(new_tile)
                 self.tile_positions[(j,i)] = new_tile
+

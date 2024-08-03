@@ -7,16 +7,18 @@ class Drawer:
     player_image = None
     def __init__(self):
         tile_classes = tiles.Tile.__subclasses__()
+        #tile image initialization
         for tile_class in tile_classes:
             self.tile_images[tile_class] = Drawer.__initialize_image(tile_class.get_image_path())
         
+        #player image initialization
         Drawer.player_image = pygame.image.load(Player.get_image_path())
         Drawer.player_image = pygame.transform.scale(Drawer.player_image,(window_size.PLAYER_WIDTH,window_size.PLAYER_HEIGHT))
     
     @staticmethod
     def __initialize_image(path):
         new_image = pygame.image.load(path)
-        new_image = pygame.transform.scale(new_image,(window_size.TILE_WIDTH,window_size.TILE_WIDTH))
+        new_image = pygame.transform.scale(new_image,(window_size.TILE_WIDTH,window_size.TILE_HEIGHT))
         return new_image
     @staticmethod   
     def draw_scene(canvas,player,tiles):

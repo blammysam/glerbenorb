@@ -66,7 +66,6 @@ class CollisionManager:
             elif(player_top >= tile_middle_y):
                 after_collision_player_y = tile_bottom
         if(collided):
-            print("colided")
             return (after_collision_player_x,after_collision_player_y)
         else:
             return None
