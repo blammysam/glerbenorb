@@ -1,4 +1,4 @@
-from collision_manager import CollisionManager
+from .collision_manager import CollisionManager
 import pygame
 class Player:
     image_path = "sprites/player_image.png"

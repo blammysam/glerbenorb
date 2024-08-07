@@ -1,7 +1,7 @@
 import window_size
-import tiles
+import map_game.tiles as tiles
 import pygame
-from player import Player
+from .player import Player
 class Drawer:
     tile_images = {}
     player_image = None

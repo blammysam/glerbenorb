@@ -1,11 +1,12 @@
 import pygame
-from player import Player
-import map_strings
-from drawer import Drawer
-from tile_map import TileMap
+from map_game.player import Player
+import map_game.map_strings as map_strings
+from map_game.drawer import Drawer
+from map_game.tile_map import TileMap
 import window_size
-import title_screen_images
-from sprite_sheet_utils.glerb_alphabet import alphabet_sprites
+from button_and_button_accessories.button import Button
+from title_screen.title_screen import TitleScreen
+from scene_state import SceneState
 #make window
 canvas = pygame.display.set_mode((window_size.WINDOW_WIDTH,window_size.WINDOW_HEIGHT))
 
@@ -24,10 +25,11 @@ starting_map = TileMap(map_strings.map_string)
 movement_key_queue= []
 
 #scene
-scene = "game"
+SceneState.set_scene_state("title")
 
 #game loop
 running = True
+
 while running:
     user_events = pygame.event.get()
     #events
@@ -36,11 +38,10 @@ while running:
             running = False
         
 
-    match scene:
+    match SceneState.get_scene_state():
         case "title":
-            canvas.blit(title_screen_images.title,(0,0))
-
-
+            TitleScreen.update_buttons(user_events)
+            TitleScreen.display(canvas)
             pygame.display.update()
             game_clock.tick(fps)
 
@@ -49,7 +50,7 @@ while running:
                 player.update_movement_queue(event)
 
             player.movement(starting_map)
-    
+
             drawer.draw_scene(canvas,player,starting_map.tiles)
 
             pygame.display.update()

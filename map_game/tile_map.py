@@ -1,4 +1,4 @@
-import tiles
+import map_game.tiles as tiles
 
 class TileMap:
     character_tiles = {"g":tiles.GroundTile,"w":tiles.WallTile}
